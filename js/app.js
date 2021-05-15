@@ -17,9 +17,11 @@
  * Define Global Variables
  * 
 */
+
 const nav = document.getElementById('navbar__list');
 const sections = document.querySelectorAll('section');
 const links = nav.children;
+let anchors = '';
 
 /**
  * End Global Variables
@@ -44,10 +46,14 @@ function buildNav() {
 		const sectionId = sections[i].id;
 		const sectionData = sections[i].dataset.nav;
 		
-		navLinks += `<li><a class='menu__link' href='#${sectionId}'>${sectionData}</a></li>`
+		navLinks += `<li><a class='menu__link' data-id='${sectionId}' href='#' onclick='scrollToSect'>${sectionData}</a></li>`
 	};
+	
 	nav.innerHTML = navLinks;
+	
 }
+
+
 
 // Add class 'active' to section when near top of viewport
 function addActive() {
@@ -77,23 +83,47 @@ function addActive() {
 
 // Hide Navbar when scrolling. Src: W3 Schools (https://www.w3schools.com/howto/howto_js_navbar_hide_scroll.asp)
 
-var prevScrollpos = window.pageYOffset;
+let prevScrollpos = window.pageYOffset;
 console.log(`previous scroll pos: ${prevScrollpos} `);
 window.onscroll = function() {
-  var currentScrollPos = window.pageYOffset;
+  let currentScrollPos = window.pageYOffset;
 	
   if (prevScrollpos <= currentScrollPos) {
     document.querySelector(".page__header").style.top = "0";
 //	  console.log(`current scroll pos: ${currentScrollPos} `);
   } else {
-    document.querySelector(".page__header").style.top = "-50px";
+	  //check if mouse is over nav bar
+	 const mouseOver = nav.addEventListener('mouseover', function(){
+		if(mouseOver) {
+			//if mouse is over nav, keep displaying
+			document.querySelector(".page__header").style.top = "0";
+	  	}
+	    else{
+			//hides the nav bar on scroll up after 5 secs to give the user time to use it beforehand
+	  		setTimeout(function(){ document.querySelector(".page__header").style.top = "-50px"; }, 5000);
+	  	}
+	 });
+	  
+	  
+    
   }
   prevScrollpos = currentScrollPos;
 }
 
+
+
+
 // Scroll to anchor ID using scrollTO event
-
-
+const scrollToSect = () => {
+	document.querySelectorAll('.menu__link').forEach(link => {
+		link.addEventListener('click', function (e) {
+			console.log('clicked!');
+			e.preventDefault();
+			const elem = e.data.id;
+			elem.scrollTo(0,0);
+		});
+	});
+};
 /**
  * End Main Functions
  * Begin Events
@@ -103,9 +133,22 @@ window.onscroll = function() {
 // Build menu 
 
 buildNav();
+anchors = document.querySelectorAll('.menu__link');
+
 
 // Scroll to section on link click
-addActive();
+//Prevent default anchor event, then pulls data-id from given link and uses that to know where to scroll to
+anchors.forEach((anchor) => {
+	anchor.addEventListener('click', function (e) {
+		e.preventDefault();
+		let anchorPoint = anchor.dataset.id;
+		document.querySelector(`#${anchorPoint}`).scrollIntoView({behavior: 'smooth'});
+	});
+});
 // Set sections as active
+addActive();
+
+
+
 
 
